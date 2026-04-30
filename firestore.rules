@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Phase 3: Primitives & Global Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.email_verified == "true"); }
+    function isAdmin() { return isSignedIn() && request.auth.token.email == 'milindwani16@gmail.com' && (request.auth.token.email_verified == true || request.auth.token.email_verified == "true"); }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- Entity Validation Blueprints (Phase 4.2) ---
+    
+    function isValidChat(data) {
+      let requiredFields = ['userId', 'language', 'updatedAt', 'lastMessage'];
+      return data.keys().hasAll(requiredFields) &&
+             data.keys().size() >= 4 &&
+             data.userId == request.auth.uid &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.language is string && data.language.size() <= 50 &&
+             data.updatedAt is number &&
+             data.lastMessage is string && data.lastMessage.size() <= 2000;
+    }
+
+    function isValidMessage(data) {
+      let requiredFields = ['role', 'content', 'timestamp', 'id', 'userId'];
+      return data.keys().hasAll(requiredFields) &&
+             data.keys().size() >= 5 &&
+             data.userId == request.auth.uid &&
+             data.role in ['user', 'assistant'] &&
+             data.content is string && data.content.size() <= 10000 &&
+             data.timestamp is number &&
+             data.id is string && data.id.size() <= 256;
+    }
+
+    function isValidVerification(data) {
+      let requiredFields = ['userId', 'content', 'verdict', 'explanation', 'confidence', 'sources', 'timestamp'];
+      return data.keys().hasAll(requiredFields) &&
+             data.keys().size() >= 7 &&
+             data.userId == request.auth.uid &&
+             data.content is string && data.content.size() <= 2000 &&
+             data.verdict in ['True', 'Fake', 'Misleading'] &&
+             data.explanation is string && data.explanation.size() <= 2000 &&
+             data.confidence is number && data.confidence >= 0 && data.confidence <= 1 &&
+             data.sources is list && data.sources.size() <= 10 &&
+             data.timestamp is number;
+    }
+
+    // --- Collection Rules ---
+
+    match /chats/{chatId} {
+      function canReadChat() {
+        return isOwner(existing().userId);
+      }
+      
+      allow get: if canReadChat();
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isVerified() && isValidId(chatId) && isValidChat(incoming());
+      
+      allow update: if isValidChat(incoming()) &&
+                      isOwner(existing().userId) && 
+                      incoming().userId == existing().userId &&
+                      // Action: Update timestamp and last message
+                      incoming().diff(existing()).affectedKeys().hasOnly(['lastMessage', 'updatedAt']);
+      
+      allow delete: if isOwner(existing().userId);
+
+      match /messages/{messageId} {
+        // Master Gate (Pillar 1): Must check child document userId for secure list queries
+        function canReadMessage() {
+          return isOwner(resource.data.userId);
+        }
+
+        allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow get: if canReadMessage();
+        allow create: if isVerified() && isValidId(messageId) && isValidMessage(incoming());
+      }
+    }
+
+    match /verifications/{verificationId} {
+      allow get: if isOwner(existing().userId);
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isVerified() && isValidId(verificationId) && isValidVerification(incoming());
+      
+      allow delete: if isOwner(existing().userId);
+    }
+
+    match /live_updates/{updateId} {
+      allow read: if true;
+      allow create: if isAdmin();
+    }
+
+    match /global_stats/main {
+      allow read: if true;
+      // Partial updates allowed for incrementing stats
+      allow update: if isVerified() && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['queriesAnswered']) ||
+        incoming().diff(existing()).affectedKeys().hasOnly(['usersHelped', 'queriesAnswered'])
+      );
+    }
+  }
+}

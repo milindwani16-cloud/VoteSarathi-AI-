@@ -1,0 +1,88 @@
+{
+  "entities": {
+    "Message": {
+      "title": "Message",
+      "description": "A single message in a chat thread",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["id", "userId", "role", "content", "timestamp"]
+    },
+    "Chat": {
+      "title": "Chat",
+      "description": "A chat session between a user and the AI",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "updatedAt": { "type": "number" },
+        "language": { "type": "string" }
+      },
+      "required": ["userId", "updatedAt"]
+    },
+    "NewsVerification": {
+      "title": "NewsVerification",
+      "description": "A news verification request and its result",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "content": { "type": "string" },
+        "verdict": { "type": "string", "enum": ["True", "Fake", "Misleading"] },
+        "explanation": { "type": "string" },
+        "confidence": { "type": "number" },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["userId", "content", "verdict", "explanation", "confidence", "sources", "timestamp"]
+    },
+    "LiveUpdate": {
+      "title": "LiveUpdate",
+      "description": "Real-time election news updates",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "type": { "type": "string", "enum": ["news", "alert", "result"] }
+      },
+      "required": ["title", "content", "timestamp", "type"]
+    },
+    "GlobalStats": {
+      "title": "GlobalStats",
+      "description": "Real-time global app statistics",
+      "type": "object",
+      "properties": {
+        "usersHelped": { "type": "number" },
+        "queriesAnswered": { "type": "number" }
+      },
+      "required": ["usersHelped", "queriesAnswered"]
+    }
+  },
+  "firestore": {
+    "chats/{chatId}": {
+      "schema": "Chat",
+      "description": "Top-level chat sessions"
+    },
+    "chats/{chatId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Messages within a specific chat session"
+    },
+    "verifications/{verificationId}": {
+      "schema": "NewsVerification",
+      "description": "News verification history"
+    },
+    "live_updates/{updateId}": {
+      "schema": "LiveUpdate",
+      "description": "Real-time election updates"
+    },
+    "global_stats/main": {
+      "schema": "GlobalStats",
+      "description": "Live global app stats"
+    }
+  }
+}

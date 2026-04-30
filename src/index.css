@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: "Helvetica Neue", "Helvetica", "Arial", "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary: #000080;  /* Navy Brand */
+  --color-navy: #000080;
+  --color-accent: #FF9933;   /* Saffron */
+  --color-success: #138808;  /* Green Accent */
+  --color-surface: #F8FAFC;  /* Slate 50 */
+  --color-border-slate: #E2E8F0; /* Slate 200 */
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-slate-800 font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.mobile-container {
+  @apply max-w-md mx-auto min-h-screen bg-slate-50 shadow-2xl relative flex flex-col overflow-x-hidden border-x border-border-slate;
+}
+
+.glass-card {
+  @apply bg-white shadow-sm border border-border-slate rounded-2xl;
+}
+
+.action-button {
+  @apply flex items-center justify-center p-4 rounded-xl transition-all active:scale-95 shadow-sm;
+}
+
+/* Specific theme classes */
+.chat-bubble-user {
+  border-radius: 1.2rem 1.2rem 0.2rem 1.2rem !important;
+}
+
+.chat-bubble-ai {
+  border-radius: 1.2rem 1.2rem 1.2rem 0.2rem !important;
+}
+
+.saffron-accent {
+  @apply bg-[#FF9933];
+}
+
+.navy-brand {
+  @apply bg-[#000080];
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

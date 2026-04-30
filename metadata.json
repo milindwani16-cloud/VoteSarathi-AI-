@@ -1,0 +1,6 @@
+{
+  "name": "VoteSaathi AI",
+  "description": "AI-powered multilingual election assistant for India, helping citizens understand voting, check eligibility, and detect fake news.",
+  "requestFramePermissions": ["camera", "microphone", "geolocation"],
+  "majorCapabilities": []
+}
