@@ -62,7 +62,7 @@ export function SettingsScreen({ selectedLanguage, onLanguageChange }: SettingsS
         )}
 
         <section className="space-y-4">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 px-2 leading-none">Preferences</h3>
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 px-2 leading-none">{t('preferences', lang)}</h3>
           <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -98,11 +98,11 @@ export function SettingsScreen({ selectedLanguage, onLanguageChange }: SettingsS
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 px-2">Support & Legal</h3>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 px-2">{t('support_legal', lang)}</h3>
           <div className="bg-white border border-gray-100 rounded-[2rem] overflow-hidden shadow-sm">
             {[
-              { id: 'help', label: 'Help Center', icon: HelpCircle, color: 'text-orange-500' },
-              { id: 'privacy', label: 'Privacy Policy', icon: FileText, color: 'text-gray-500' },
+              { id: 'help', label: t('help_center', lang), icon: HelpCircle, color: 'text-orange-500' },
+              { id: 'privacy', label: t('privacy_policy', lang), icon: FileText, color: 'text-gray-500' },
               { id: 'logout', label: t('logout', lang), icon: LogOut, color: 'text-red-500' },
             ].map((item, i, arr) => (
               <button 

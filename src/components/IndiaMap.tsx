@@ -8,6 +8,7 @@ import { scaleQuantile } from "d3-scale";
 import { motion, AnimatePresence } from 'motion/react';
 import { Info, Map as MapIcon, X, TrendingUp, Award } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { t } from '../lib/translations';
 
 // India TopoJSON URL
 const INDIA_TOPO_JSON = "https://raw.githubusercontent.com/HindustanTimesLabs/shapefiles/master/india/states/india_states.json";
@@ -46,7 +47,11 @@ const indianStatesData: Record<string, StateData> = {
   "Himachal Pradesh": { id: "HP", name: "Himachal Pradesh", turnout: 72.4, stronghold: "BJP", lastWinner: "BJP", seats: 4 },
 };
 
-export function IndiaMap() {
+interface IndiaMapProps {
+  lang: string;
+}
+
+export function IndiaMap({ lang }: IndiaMapProps) {
   const [selectedState, setSelectedState] = useState<StateData | null>(null);
   const [tooltipContent, setTooltipContent] = useState("");
 
@@ -77,12 +82,12 @@ export function IndiaMap() {
               <MapIcon size={20} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-800">State-wise Insights</h3>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Interactive Map of India</p>
+              <h3 className="text-sm font-bold text-slate-800">{t('state_insights', lang)}</h3>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('interactive_map_india', lang)}</p>
             </div>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Scale</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{t('scale', lang)}</span>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: colorScale.range()[i-1] }}></div>
@@ -158,7 +163,7 @@ export function IndiaMap() {
 
           {!selectedState && (
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center pointer-events-none">
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Tap on a state for details</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">{t('tap_state_details', lang)}</p>
             </div>
           )}
         </div>
@@ -179,7 +184,7 @@ export function IndiaMap() {
                       State ID: {selectedState.id}
                     </span>
                     <span className="text-[10px] bg-slate-50 text-slate-500 px-2 py-1 rounded-lg font-bold uppercase tracking-widest border border-slate-100">
-                      {selectedState.seats} Seats
+                      {selectedState.seats} {t('seats', lang)}
                     </span>
                   </div>
                 </div>
@@ -195,18 +200,18 @@ export function IndiaMap() {
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <div className="flex items-center gap-2 mb-2 text-primary opacity-70">
                     <TrendingUp size={14} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Turnout</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest">{t('turnout', lang)}</span>
                   </div>
                   <p className="text-2xl font-black text-slate-800">{selectedState.turnout}%</p>
-                  <p className="text-[9px] text-slate-400 font-medium mt-1 uppercase tracking-wider">Historical Average</p>
+                  <p className="text-[9px] text-slate-400 font-medium mt-1 uppercase tracking-wider">{t('historical_average', lang)}</p>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <div className="flex items-center gap-2 mb-2 text-success opacity-70">
                     <Award size={14} />
-                    <span className="text-[9px] font-bold uppercase tracking-widest">Stronghold</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest">{t('stronghold', lang)}</span>
                   </div>
                   <p className="text-2xl font-black text-slate-800">{selectedState.stronghold}</p>
-                  <p className="text-[9px] text-slate-400 font-medium mt-1 uppercase tracking-wider">Major Influence</p>
+                  <p className="text-[9px] text-slate-400 font-medium mt-1 uppercase tracking-wider">{t('major_influence', lang)}</p>
                 </div>
               </div>
 
@@ -216,7 +221,7 @@ export function IndiaMap() {
                     {selectedState.lastWinner.substring(0, 2)}
                   </div>
                   <div>
-                    <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Last Winner (2019)</p>
+                    <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">{t('last_winner_title', lang)}</p>
                     <p className="text-sm font-bold text-slate-800">{selectedState.lastWinner}</p>
                   </div>
                 </div>
@@ -233,9 +238,9 @@ export function IndiaMap() {
             <Info size={18} />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-800 mb-1 tracking-tight">Geopolitical Fact</p>
+            <p className="text-xs font-bold text-slate-800 mb-1 tracking-tight">{t('geopolitical_fact', lang)}</p>
             <p className="text-[10px] text-slate-500 leading-relaxed font-bold uppercase tracking-wider">
-              Uttar Pradesh remains the most significant state with 80 Lok Sabha seats, often said to determine the course of Indian politics.
+              {t('up_fact', lang)}
             </p>
           </div>
         </div>

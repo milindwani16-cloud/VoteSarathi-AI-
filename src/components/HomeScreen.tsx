@@ -58,13 +58,13 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
       try {
         const articles = await newsService.getLatestElectionNews(selectedLanguage.code);
         if (articles.length === 0 && selectedLanguage.code !== 'en') {
-          // Retry with EN if language specific search returns nothing
           const enArticles = await newsService.getLatestElectionNews('en');
           setNews(enArticles);
         } else {
           setNews(articles);
         }
       } catch (err) {
+        console.error('HomeScreen fetchNews catch:', err);
         setNewsError(true);
       } finally {
         setNewsLoading(false);
@@ -128,7 +128,6 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
 
   return (
     <div className="flex-1 overflow-y-auto pb-24 space-y-8">
-      {/* Header */}
       <header className="navy-brand text-white px-6 py-6 flex justify-between items-center shadow-lg sticky top-0 z-20">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 saffron-accent rounded-full flex items-center justify-center font-bold text-lg border-2 border-white shadow-sm">
@@ -150,7 +149,6 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
       </header>
 
       <div className="px-5 space-y-8">
-        {/* Banner Image */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -164,13 +162,12 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
             <div className="text-white">
-              <h2 className="text-lg font-bold tracking-tight">Your Vote, Your Power</h2>
-              <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">Be part of the world's largest democracy</p>
+              <h2 className="text-lg font-bold tracking-tight">{t('vote_power_title', lang)}</h2>
+              <p className="text-[10px] uppercase tracking-widest font-bold opacity-80">{t('vote_power_desc', lang)}</p>
             </div>
           </div>
         </motion.div>
 
-        {/* Global Impact Ticker */}
         <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-around shadow-sm">
           <div className="text-center">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t('citizens_helped', lang)}</p>
@@ -186,7 +183,6 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
           </div>
         </div>
 
-        {/* AI Search/Ask */}
         <div 
           onClick={() => onNavigate('chat')}
           className="relative group cursor-pointer"
@@ -195,7 +191,7 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
             <Search className="text-slate-400 group-hover:text-primary transition-colors" size={20} />
           </div>
           <div className="w-full bg-slate-50 border border-slate-200 group-hover:border-primary/30 p-4 pl-12 rounded-2xl shadow-sm transition-all text-slate-500 flex items-center justify-between">
-            <span className="text-sm">{isListening ? 'Listening...' : t('ask_anything', lang)}</span>
+            <span className="text-sm">{isListening ? t('listening', lang) : t('ask_anything', lang)}</span>
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -213,7 +209,6 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
           </div>
         </div>
 
-        {/* Journey Tracker */}
         <VotingJourney 
           currentStep={journeyStep} 
           onStepClick={(step) => {
@@ -222,12 +217,11 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
             if (step === 3) setShowBoothFinder(true);
             if (step === 4) onNavigate('info'); // Information/Election hub
             
-            // Auto progress logic (for demo)
             if (step === journeyStep) setJourneyStep(prev => Math.min(prev + 1, 4));
           }} 
+          lang={lang}
         />
 
-        {/* Quick Actions Grid */}
         <div className="grid grid-cols-2 gap-4">
           {[
             { id: 'eligibility', label: t('eligibility', lang), icon: CheckCircle, color: 'bg-slate-50 text-slate-700', onClick: () => setShowEligibility(true) },
@@ -401,7 +395,7 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
                     {boothResult.loading ? (
                       <div className="flex items-center gap-3">
                         <Loader2 className="animate-spin text-primary" size={20} />
-                        <span className="text-sm font-bold text-slate-400">Searching...</span>
+                        <span className="text-sm font-bold text-slate-400">{t('searching', lang)}</span>
                       </div>
                     ) : (
                       <>
@@ -446,8 +440,8 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
       >
         <div className="relative z-10 flex flex-col gap-2">
           <span className="text-xs font-bold uppercase tracking-widest text-white/70">{t('breaking', lang)}</span>
-          <h2 className="text-xl font-bold leading-tight">National Voters' Day is approaching!</h2>
-          <p className="text-white/80 text-sm mt-2">Learn why your vote matters and how to register before the deadline.</p>
+          <h2 className="text-xl font-bold leading-tight">{t('voters_day_title', lang)}</h2>
+          <p className="text-white/80 text-sm mt-2">{t('voters_day_desc', lang)}</p>
           <button className="mt-4 bg-white text-primary font-bold py-3 px-6 rounded-2xl text-sm w-fit active:scale-95 transition-transform">
             {t('voter_guide', lang)}
           </button>
@@ -463,7 +457,7 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
         <div className="px-5">
           <h3 className="font-bold text-lg tracking-tight flex items-center gap-2">
             <Shield size={20} className="text-orange-500" />
-            Live Election Spotlight
+            {t('election_spotlight', lang)}
           </h3>
         </div>
         
@@ -507,7 +501,6 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
         </div>
       </div>
 
-      {/* Latest News API Section */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="font-bold text-lg tracking-tight flex items-center gap-2">
@@ -530,7 +523,7 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
             >
               <RotateCcw size={16} className={`text-slate-400 ${newsLoading ? 'animate-spin' : ''}`} />
             </button>
-            <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">Via News API</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">{t('via_news_api', lang)}</span>
           </div>
         </div>
         
@@ -542,12 +535,12 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
           ) : newsError ? (
             <div className="w-full flex flex-col items-center justify-center p-8 bg-red-50/50 rounded-2xl border border-red-100 space-y-2">
               <AlertCircle size={24} className="text-red-400" />
-              <p className="text-xs text-red-500 font-medium text-center">Failed to load live election news. Please check your internet or retry.</p>
+              <p className="text-xs text-red-500 font-medium text-center">{t('news_load_error', lang)}</p>
               <button 
                 onClick={() => window.location.reload()}
                 className="text-[10px] font-bold text-red-600 underline uppercase tracking-widest"
               >
-                Reload App
+                {t('reload_app', lang)}
               </button>
             </div>
           ) : news.length > 0 ? (
@@ -581,7 +574,7 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
             ))
           ) : (
             <div className="w-full p-8 text-center bg-slate-50 rounded-2xl border border-slate-100 text-slate-400 text-sm">
-              No election news found for your region.
+              {t('no_news_found', lang) || "No election news found for your region."}
             </div>
           )}
         </div>

@@ -3,61 +3,63 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { CheckCircle2, Circle, ArrowRight, UserPlus, Search, Info, Smartphone } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { t } from '../lib/translations';
 
 interface Step {
   id: number;
-  title: string;
-  description: string;
+  titleKey: string;
+  descKey: string;
   icon: any;
-  action: string;
+  actionKey: string;
 }
 
 const steps: Step[] = [
   {
     id: 1,
-    title: 'Eligibility & Identity',
-    description: 'Ensure you are 18+ and an Indian citizen with a valid ID proof.',
+    titleKey: 'journey_step1_title',
+    descKey: 'journey_step1_desc',
     icon: UserPlus,
-    action: 'Check Eligibility'
+    actionKey: 'journey_step1_action'
   },
   {
     id: 2,
-    title: 'Registration',
-    description: 'Find your name in the Voter List or fill Form 6 to register as a new voter.',
+    titleKey: 'journey_step2_title',
+    descKey: 'journey_step2_desc',
     icon: Search,
-    action: 'Search Voter List'
+    actionKey: 'journey_step2_action'
   },
   {
     id: 3,
-    title: 'Booth Awareness',
-    description: 'Locate your polling station and research the candidates in your area.',
+    titleKey: 'journey_step3_title',
+    descKey: 'journey_step3_desc',
     icon: Info,
-    action: 'Find My Booth'
+    actionKey: 'journey_step3_action'
   },
   {
     id: 4,
-    title: 'Cast Your Vote',
-    description: 'Visit the polling station on election day with your EPIC (Voter ID) or valid ID.',
+    titleKey: 'journey_step4_title',
+    descKey: 'journey_step4_desc',
     icon: Smartphone,
-    action: 'View Election Dates'
+    actionKey: 'journey_step4_action'
   }
 ];
 
 interface VotingJourneyProps {
   currentStep?: number;
   onStepClick?: (stepId: number) => void;
+  lang: string;
 }
 
-export function VotingJourney({ currentStep = 1, onStepClick }: VotingJourneyProps) {
+export function VotingJourney({ currentStep = 1, onStepClick, lang }: VotingJourneyProps) {
   return (
     <section className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-sm mx-5">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h3 className="text-xl font-black text-slate-800 tracking-tight">Your Voting Journey</h3>
-          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">4-Step Action Plan for Citizens</p>
+          <h3 className="text-xl font-black text-slate-800 tracking-tight">{t('journey_title', lang)}</h3>
+          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{t('journey_subtitle', lang)}</p>
         </div>
         <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-          {Math.round(((currentStep - 1) / 4) * 100)}% Complete
+          {Math.round(((currentStep - 1) / 4) * 100)}% {t('journey_complete', lang)}
         </div>
       </div>
 
@@ -101,13 +103,13 @@ export function VotingJourney({ currentStep = 1, onStepClick }: VotingJourneyPro
                   "text-sm font-bold tracking-tight transition-colors",
                   isActive ? "text-slate-800" : isCompleted ? "text-slate-600" : "text-slate-400"
                 )}>
-                  {step.title}
+                  {t(step.titleKey as any, lang)}
                 </h4>
                 <p className={cn(
                   "text-xs leading-relaxed",
                   isActive ? "text-slate-600" : "text-slate-400"
                 )}>
-                  {step.description}
+                  {t(step.descKey as any, lang)}
                 </p>
                 
                 {isActive && (
@@ -117,7 +119,7 @@ export function VotingJourney({ currentStep = 1, onStepClick }: VotingJourneyPro
                     onClick={() => onStepClick?.(step.id)}
                     className="mt-3 flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-[0.15em] py-2 px-4 bg-primary/5 rounded-xl border border-primary/10 active:scale-95 transition-all"
                   >
-                    {step.action}
+                    {t(step.actionKey as any, lang)}
                     <ArrowRight size={14} />
                   </motion.button>
                 )}
@@ -130,7 +132,7 @@ export function VotingJourney({ currentStep = 1, onStepClick }: VotingJourneyPro
       <div className="mt-8 p-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
         <p className="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest flex items-center justify-center gap-2">
           <Info size={12} className="text-primary" />
-          Pro Tip: Link your AADHAAR for a smoother experience
+          {t('pro_tip_aadhaar', lang)}
         </p>
       </div>
     </section>

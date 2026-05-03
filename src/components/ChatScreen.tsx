@@ -82,10 +82,8 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
 
     let currentChatId = chatId;
     if (!currentChatId) {
-      // Retry chat creation if first attempt fails (e.g. auth still connecting or disabled)
       currentChatId = await persistenceService.createChat(selectedLanguage.name);
       if (currentChatId) setChatId(currentChatId);
-      // No 'return' here, we want to allow sending even if persistence fails
     }
 
     const userMessage: Message = {
@@ -159,7 +157,6 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-50 overflow-hidden relative">
-      {/* Header */}
       <header className="bg-white border-b border-gray-100 p-4 pt-10 flex items-center gap-4 z-10 shrink-0">
         <button onClick={onBack} className="p-2 hover:bg-gray-50 rounded-xl transition-colors">
           <ArrowLeft size={20} />
@@ -185,18 +182,18 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
                         className="w-1 bg-primary rounded-full"
                       />
                     ))}
-                    <span className="text-[10px] text-primary font-bold uppercase tracking-widest ml-1">Speaking...</span>
+                    <span className="text-[10px] text-primary font-bold uppercase tracking-widest ml-1">{t('speaking', selectedLanguage.code)}</span>
                   </div>
                 ) : voiceError ? (
                   <div className="flex items-center gap-1">
                     <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                    <span className="text-[10px] text-orange-600 font-bold uppercase tracking-widest">Connection Busy...</span>
+                    <span className="text-[10px] text-orange-600 font-bold uppercase tracking-widest">{t('connection_busy', selectedLanguage.code)}</span>
                   </div>
                 ) : (
                   <>
                     <div className="w-2 h-2 rounded-full animate-pulse bg-green-500" />
                     <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">
-                      Saathi Active
+                      {t('saathi_active', selectedLanguage.code)}
                     </span>
                   </>
                 )}
@@ -206,7 +203,6 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
         </div>
       </header>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-5 space-y-6">
         <AnimatePresence>
           {messages.map((m) => (
@@ -266,7 +262,7 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
               </div>
               <div className="bg-white border border-gray-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
                 <Loader2 className="animate-spin text-primary" size={16} />
-                <span className="text-sm text-gray-500 font-medium italic">Saathi is thinking...</span>
+                <span className="text-sm text-gray-500 font-medium italic">{t('thinking', selectedLanguage.code)}</span>
               </div>
             </motion.div>
           )}
@@ -274,12 +270,10 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
         <div ref={messagesEndRef} className="h-4" />
       </div>
 
-      {/* Input Area */}
       <div className="p-4 bg-white border-t border-gray-100 shrink-0 mb-20 space-y-3">
-        {/* Voice Controls */}
         <div className="flex flex-wrap items-center justify-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-bold uppercase text-slate-400 tracking-widest mr-1">Tone:</span>
+            <span className="text-[9px] font-bold uppercase text-slate-400 tracking-widest mr-1">{t('tone', selectedLanguage.code)}:</span>
             {(['friendly', 'professional', 'clear'] as VoiceTone[]).map((tone) => (
               <button
                 key={tone}
@@ -308,7 +302,7 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
             )}
           >
             <Volume2 size={12} className={isAutoVoiceEnabled ? "text-indigo-500" : "text-slate-400"} />
-            Voice Out
+            {t('voice_out', selectedLanguage.code)}
           </button>
         </div>
 
@@ -327,7 +321,7 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Type your question..."
+            placeholder={t('type_question', selectedLanguage.code)}
             className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-sm placeholder:text-gray-400"
           />
           <button 

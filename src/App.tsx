@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HomeScreen } from './components/HomeScreen';
@@ -53,7 +48,6 @@ export default function App() {
     };
   }, []);
 
-  // Splash Screen
   if (showSplash) {
     const splashLang = language?.code || 'en';
     return (
@@ -84,7 +78,6 @@ export default function App() {
     );
   }
 
-  // Language Selection (Onboarding)
   if (!language) {
     return (
       <div className="mobile-container bg-surface flex flex-col p-8 space-y-12">

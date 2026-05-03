@@ -7,11 +7,17 @@ export type Language = {
 
 export type ElectionInfo = {
   id: string;
-  title: string;
-  description: string;
-  type: 'Lok Sabha' | 'Vidhan Sabha' | 'Gram Panchayat' | 'Municipal';
+  titleKey: string;
+  descriptionKey: string;
+  typeKey: string;
+  dateKey: string;
+  importanceKey: string;
+  // Fallbacks for direct usage if needed
+  title?: string;
+  description?: string;
+  type?: string;
   date?: string;
-  importance: string;
+  importance?: string;
 };
 
 export type Message = {

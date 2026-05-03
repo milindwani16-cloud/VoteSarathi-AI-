@@ -86,7 +86,7 @@ export function NewsVerifyScreen({ selectedLanguage }: NewsVerifyScreenProps) {
             </button>
             <label className="p-3 bg-slate-50 text-slate-400 hover:text-primary transition-colors flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest border border-slate-100 rounded-xl cursor-pointer">
               <ImageIcon size={16} />
-              <span>Upload</span>
+              <span>{t('upload', lang)}</span>
               <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
             </label>
           </div>
@@ -147,7 +147,7 @@ export function NewsVerifyScreen({ selectedLanguage }: NewsVerifyScreenProps) {
                     result.verdict === 'Fake' ? "bg-red-600 text-white" : "bg-orange-600 text-white"
                   )}>
                     {result.verdict === 'True' ? <ShieldCheck size={14} /> : <ShieldAlert size={14} />}
-                    {result.verdict}
+                    {t(result.verdict.toLowerCase() as any, lang)}
                   </div>
                 </div>
 

@@ -20,7 +20,7 @@ export function ElectionScreen({ selectedLanguage }: ElectionScreenProps) {
   const [showGuide, setShowGuide] = useState(false);
 
   if (showGuide) {
-    return <FirstTimeVoterGuide onBack={() => setShowGuide(false)} />;
+    return <FirstTimeVoterGuide onBack={() => setShowGuide(false)} lang={lang} />;
   }
 
   return (
@@ -29,10 +29,10 @@ export function ElectionScreen({ selectedLanguage }: ElectionScreenProps) {
       <header className="navy-brand text-white px-8 py-10 rounded-b-[2.5rem] shadow-lg relative overflow-hidden shrink-0">
         <div className="absolute top-0 right-0 w-32 h-32 saffron-accent opacity-20 -mr-16 -mt-16 rounded-full blur-3xl"></div>
         <div className="relative z-10 pt-4">
-          <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70 mb-2">Information Hub</h2>
-          <h1 className="text-3xl font-bold tracking-tight leading-tight">Election Guide</h1>
+          <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] opacity-70 mb-2">{t('info_hub', lang)}</h2>
+          <h1 className="text-3xl font-bold tracking-tight leading-tight">{t('election_guide', lang)}</h1>
           <p className="text-white/60 text-xs mt-3 font-bold uppercase tracking-widest max-w-[80%] leading-relaxed">
-            Every vote counts for a better India
+            {t('better_india', lang)}
           </p>
         </div>
 
@@ -77,14 +77,14 @@ export function ElectionScreen({ selectedLanguage }: ElectionScreenProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <IndiaMap />
+            <IndiaMap lang={lang} />
           </motion.div>
         ) : activeView === 'insights' ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <ElectionCharts />
+            <ElectionCharts lang={lang} />
           </motion.div>
         ) : (
           <div className="px-5 space-y-6">
@@ -101,35 +101,35 @@ export function ElectionScreen({ selectedLanguage }: ElectionScreenProps) {
                   <div className="flex justify-between items-start mb-4">
                     <div className={cn(
                       "p-3 rounded-2xl shadow-sm border",
-                      election.type === 'Lok Sabha' ? "bg-slate-50 text-primary border-slate-100" : "bg-slate-50 text-success border-slate-100"
+                      election.id === 'lok-sabha' ? "bg-slate-50 text-primary border-slate-100" : "bg-slate-50 text-success border-slate-100"
                     )}>
-                      {election.type === 'Lok Sabha' ? <Trophy size={24} /> : <Calendar size={24} />}
+                      {election.id === 'lok-sabha' ? <Trophy size={24} /> : <Calendar size={24} />}
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] bg-slate-50 text-slate-400 px-3 py-1.5 rounded-xl border border-slate-100">
-                      {election.type}
+                      {t(election.typeKey as any, lang)}
                     </span>
                   </div>
                   
-                  <h3 className="text-lg font-bold text-slate-800 tracking-tight">{election.title}</h3>
+                  <h3 className="text-lg font-bold text-slate-800 tracking-tight">{t(election.titleKey as any, lang)}</h3>
                   <p className="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
-                    {election.description}
+                    {t(election.descriptionKey as any, lang)}
                   </p>
                   
                   <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Next Date</span>
-                      <p className="text-xs font-bold text-slate-800">{election.date}</p>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">{t('next_date', lang)}</span>
+                      <p className="text-xs font-bold text-slate-800">{t(election.dateKey as any, lang)}</p>
                     </div>
                     <div className="space-y-1 text-right">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Status</span>
-                      <p className="text-xs font-bold text-primary">Active Planning</p>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">{t('status', lang)}</span>
+                      <p className="text-xs font-bold text-primary">{t('active_planning', lang)}</p>
                     </div>
                   </div>
 
                   <div className="mt-5 p-4 bg-slate-50 rounded-2xl flex items-start gap-3 border border-slate-100 shadow-inner">
                     <Info size={16} className="text-primary shrink-0 mt-0.5" />
                     <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider leading-relaxed">
-                      {election.importance}
+                      {t(election.importanceKey as any, lang)}
                     </p>
                   </div>
                 </div>
@@ -142,13 +142,13 @@ export function ElectionScreen({ selectedLanguage }: ElectionScreenProps) {
                 <div className="w-16 h-16 saffron-accent mx-auto rounded-2xl flex items-center justify-center mb-6 shadow-lg border-2 border-white/20 -rotate-3 group-hover:rotate-0 transition-transform">
                   <BookOpen size={28} />
                 </div>
-                <h2 className="text-2xl font-bold tracking-tight">Step-by-Step Guide</h2>
-                <p className="text-white/70 text-xs font-medium mt-3 mb-8 px-4 leading-relaxed uppercase tracking-widest">Master the process of your first vote</p>
+                <h2 className="text-2xl font-bold tracking-tight">{t('step_guide_title', lang)}</h2>
+                <p className="text-white/70 text-xs font-medium mt-3 mb-8 px-4 leading-relaxed uppercase tracking-widest">{t('step_guide_desc', lang)}</p>
                 <button 
                   onClick={() => setShowGuide(true)}
                   className="w-full bg-white text-primary font-bold py-4 rounded-2xl text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  Get Started
+                  {t('start_now', lang)}
                   <ArrowRight size={18} />
                 </button>
               </div>

@@ -1,9 +1,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { generateSpeech } from '../services/geminiService';
-import { pcmToWav } from '../lib/audioUtils';
 
-// Types for Web Speech API
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
@@ -40,7 +38,6 @@ export function useVoiceAssistant(language: string = 'en') {
   const isActuallyRunningRef = useRef(false);
   const retryCountRef = useRef(0);
 
-  // Map 2-letter codes to common Indian locales
   const getFullLocale = (code: string) => {
     const map: Record<string, string> = {
       en: 'en-IN',
@@ -63,7 +60,6 @@ export function useVoiceAssistant(language: string = 'en') {
   const fullLocale = getFullLocale(language);
   const [voicesLoaded, setVoicesLoaded] = useState(false);
 
-  // Define stopListening and cancelSpeech first so they can be used in useEffect
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isActuallyRunningRef.current) {
       try {
@@ -127,12 +123,10 @@ export function useVoiceAssistant(language: string = 'en') {
     if (!window.speechSynthesis) return null;
     const voices = window.speechSynthesis.getVoices();
     
-    // Filter voices by exact locale or language start
     const langVoices = voices.filter(v => v.lang.toLowerCase().includes(lang.toLowerCase().split('-')[0]));
     
     if (langVoices.length === 0) return null;
 
-    // Preference: 1. Neural/Natural, 2. Google, 3. Premium, 4. LocalService, 5. Default
     const sorted = [...langVoices].sort((a, b) => {
       const aName = a.name.toLowerCase();
       const bName = b.name.toLowerCase();
@@ -179,7 +173,6 @@ export function useVoiceAssistant(language: string = 'en') {
           setError(event.error);
         }
         
-        // Auto-retry once for network issues if visible
         if (event.error === 'network' && retryCountRef.current < 2 && document.visibilityState === 'visible') {
           retryCountRef.current++;
           setTimeout(() => {
@@ -210,7 +203,6 @@ export function useVoiceAssistant(language: string = 'en') {
         recognitionRef.current.start();
       } catch (e: any) {
         if (e.name === 'InvalidStateError') {
-          // Already started, ignore
         } else {
           console.error('Failed to start recognition:', e);
           isActuallyRunningRef.current = false;
@@ -263,11 +255,10 @@ export function useVoiceAssistant(language: string = 'en') {
     
     try {
       setIsSpeaking(true);
-      const base64Audio = await generateSpeech(text, tone);
+      const base64Audio = await generateSpeech(text, tone, lang);
       
       if (base64Audio) {
-        const audioBlob = pcmToWav(base64Audio);
-        const audioUrl = URL.createObjectURL(audioBlob);
+        const audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
         
@@ -276,7 +267,6 @@ export function useVoiceAssistant(language: string = 'en') {
             setIsSpeaking(false);
             audioRef.current = null;
           }
-          URL.revokeObjectURL(audioUrl);
         };
         
         audio.onerror = (e) => {
@@ -285,7 +275,6 @@ export function useVoiceAssistant(language: string = 'en') {
             setIsSpeaking(false);
             audioRef.current = null;
           }
-          URL.revokeObjectURL(audioUrl);
           speak(text, tone, lang);
         };
         
@@ -295,12 +284,9 @@ export function useVoiceAssistant(language: string = 'en') {
             setIsSpeaking(false);
             audioRef.current = null;
           }
-          URL.revokeObjectURL(audioUrl);
-          // Fallback to browser TTS if play is blocked (common for non-user-initiated play)
           speak(text, tone, lang);
         });
       } else {
-        // Fallback to browser TTS if Gemini TTS fails
         speak(text, tone, lang);
       }
     } catch (err) {

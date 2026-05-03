@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { motion } from 'motion/react';
 import { TrendingUp, Users, PieChart as PieIcon } from 'lucide-react';
+import { t } from '../lib/translations';
 
 const turnoutData = [
   { year: '1951', turnout: 44.8 },
@@ -17,12 +18,7 @@ const turnoutData = [
   { year: '2019', turnout: 67.4 },
 ];
 
-const genderData = [
-  { era: '2014', Male: 67.1, Female: 65.6 },
-  { era: '2019', Male: 67.0, Female: 67.2 },
-];
-
-const seatData = [
+const seatDataFallback = [
   { name: 'National Parties', value: 397 },
   { name: 'State Parties', value: 114 },
   { name: 'Unrecognised', value: 27 },
@@ -40,7 +36,23 @@ const historicalPartyData = [
 
 const COLORS = ['#1a2a6c', '#f08000', '#228b22', '#7c7c7c'];
 
-export function ElectionCharts() {
+interface ElectionChartsProps {
+  lang: string;
+}
+
+export function ElectionCharts({ lang }: ElectionChartsProps) {
+  const genderData = [
+    { era: '2014', [t('male', lang)]: 67.1, [t('female', lang)]: 65.6 },
+    { era: '2019', [t('male', lang)]: 67.0, [t('female', lang)]: 67.2 },
+  ];
+
+  const seatData = [
+    { name: t('national_parties' as any, lang) || 'National Parties', value: 397 },
+    { name: t('state_parties' as any, lang) || 'State Parties', value: 114 },
+    { name: t('unrecognised' as any, lang) || 'Unrecognised', value: 27 },
+    { name: t('independent' as any, lang) || 'Independent', value: 5 },
+  ];
+
   return (
     <div className="space-y-12 pb-10">
       {/* Voter Turnout Trend */}
@@ -50,8 +62,8 @@ export function ElectionCharts() {
             <TrendingUp size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Voter Turnout Trends</h3>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">General Elections (1951-2019)</p>
+            <h3 className="text-sm font-bold text-slate-800">{t('voter_turnout_trends', lang)}</h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('turnout_year_range', lang)}</p>
           </div>
         </div>
         
@@ -93,7 +105,7 @@ export function ElectionCharts() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[10px] text-slate-400 mt-4 text-center italic">India saw its highest ever turnout in 2019 at 67.4%</p>
+        <p className="text-[10px] text-slate-400 mt-4 text-center italic">{t('turnout_highest_record', lang)}</p>
       </section>
 
       {/* Gender Participation */}
@@ -103,8 +115,8 @@ export function ElectionCharts() {
             <Users size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Gender Participation</h3>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Turnout % Comparison</p>
+            <h3 className="text-sm font-bold text-slate-800">{t('gender_participation', lang)}</h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('turnout_comparison', lang)}</p>
           </div>
         </div>
 
@@ -137,8 +149,8 @@ export function ElectionCharts() {
                 }} 
               />
               <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase' }} />
-              <Bar dataKey="Male" fill="#1a2a6c" radius={[4, 4, 0, 0]} barSize={25} />
-              <Bar dataKey="Female" fill="#f08000" radius={[4, 4, 0, 0]} barSize={25} />
+              <Bar dataKey={t('male', lang)} fill="#1a2a6c" radius={[4, 4, 0, 0]} barSize={25} />
+              <Bar dataKey={t('female', lang)} fill="#f08000" radius={[4, 4, 0, 0]} barSize={25} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -151,8 +163,8 @@ export function ElectionCharts() {
             <PieIcon size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Political Landscape</h3>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Distribution of Roles</p>
+            <h3 className="text-sm font-bold text-slate-800">{t('political_landscape', lang)}</h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('roles_distribution', lang)}</p>
           </div>
         </div>
 
@@ -201,8 +213,8 @@ export function ElectionCharts() {
             <PieIcon size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-800">2019 Seat Distribution</h3>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Performance by Major Parties</p>
+            <h3 className="text-sm font-bold text-slate-800">{t('seat_distribution_2019', lang)}</h3>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('major_parties_performance', lang)}</p>
           </div>
         </div>
 
@@ -242,7 +254,7 @@ export function ElectionCharts() {
         </div>
         <div className="mt-8 pt-4 border-t border-slate-100">
           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">
-            Source: Election Commission of India (2019 Results)
+            {t('source_eci', lang)}
           </p>
         </div>
       </section>

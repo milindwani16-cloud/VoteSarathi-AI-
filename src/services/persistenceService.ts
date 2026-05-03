@@ -29,11 +29,9 @@ export const persistenceService = {
         ...analysis,
         timestamp: Date.now()
       });
-      // Increment global stats
       await updateDoc(doc(db, 'global_stats', 'main'), {
         queriesAnswered: increment(1)
       }).catch(() => {
-        // Fallback if doc doesn't exist
         setDoc(doc(db, 'global_stats', 'main'), { usersHelped: 1000, queriesAnswered: 5000 }, { merge: true });
       });
     } catch (error) {
@@ -88,7 +86,6 @@ export const persistenceService = {
         updatedAt: Date.now()
       });
 
-      // Increment global stats
       await updateDoc(doc(db, 'global_stats', 'main'), {
         queriesAnswered: increment(1)
       }).catch(() => {});

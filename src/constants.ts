@@ -20,34 +20,34 @@ export const SUPPORTED_LANGUAGES: Language[] = [
 export const ELECTION_TYPES: ElectionInfo[] = [
   {
     id: 'lok-sabha',
-    title: 'Lok Sabha Elections',
-    type: 'Lok Sabha',
-    description: 'General elections to elect Members of Parliament (MPs) to the lower house of India\'s bicameral Parliament.',
-    importance: 'Decides the Prime Minister and the Union Government of India.',
-    date: 'Upcoming: 2029'
+    titleKey: 'election_loksabha_title',
+    typeKey: 'election_loksabha_type',
+    descriptionKey: 'election_loksabha_desc',
+    importanceKey: 'election_loksabha_importance',
+    dateKey: 'election_loksabha_date'
   },
   {
     id: 'vidhan-sabha',
-    title: 'Vidhan Sabha Elections',
-    type: 'Vidhan Sabha',
-    description: 'State Legislative Assembly elections to elect Members of Legislative Assembly (MLAs).',
-    importance: 'Decides the Chief Minister and the State Government.',
-    date: 'Varies by State'
+    titleKey: 'election_vidhansabha_title',
+    typeKey: 'election_vidhansabha_type',
+    descriptionKey: 'election_vidhansabha_desc',
+    importanceKey: 'election_vidhansabha_importance',
+    dateKey: 'election_vidhansabha_date'
   },
   {
     id: 'gram-panchayat',
-    title: 'Gram Panchayat Elections',
-    type: 'Gram Panchayat',
-    description: 'Local self-government elections at the village level.',
-    importance: 'Crucial for rural development and local governance.',
-    date: 'Varies by District'
+    titleKey: 'election_grampanchayat_title',
+    typeKey: 'election_grampanchayat_type',
+    descriptionKey: 'election_grampanchayat_desc',
+    importanceKey: 'election_grampanchayat_importance',
+    dateKey: 'election_grampanchayat_date'
   },
   {
     id: 'municipal',
-    title: 'Municipal Elections',
-    type: 'Municipal',
-    description: 'Elections for urban local bodies like Municipal Corporations and Councils.',
-    importance: 'Focuses on city infrastructure, water, and sanitation.',
-    date: 'Varies by City'
+    titleKey: 'election_municipal_title',
+    typeKey: 'election_municipal_type',
+    descriptionKey: 'election_municipal_desc',
+    importanceKey: 'election_municipal_importance',
+    dateKey: 'election_municipal_date'
   }
 ];

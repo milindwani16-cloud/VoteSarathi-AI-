@@ -3,40 +3,42 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, CheckCircle2, AlertCircle, Info, HelpCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { t } from '../lib/translations';
 
 interface GuideProps {
   onBack: () => void;
+  lang: string;
 }
 
-export function FirstTimeVoterGuide({ onBack }: GuideProps) {
+export function FirstTimeVoterGuide({ onBack, lang }: GuideProps) {
   const steps = [
     {
-      title: 'Registration',
-      description: 'The first step is to ensure your name is on the Electoral Roll. You can register online via NVSP portal.',
+      title: t('guide_step1_title' as any, lang),
+      description: t('guide_step1_desc' as any, lang),
       icon: CheckCircle2,
       color: 'text-blue-500 bg-blue-50'
     },
     {
-      title: 'Find your Booth',
-      description: 'Check your polling station location and the serial number in the Electoral Roll.',
+      title: t('guide_step2_title' as any, lang),
+      description: t('guide_step2_desc' as any, lang),
       icon: Info,
       color: 'text-orange-500 bg-orange-50'
     },
     {
-      title: 'Documents to Carry',
-      description: 'Carry your Voter ID (EPIC) card. If you don\'t have it, you can carry any of the 12 approved ID documents like Aadhaar, PAN, etc.',
+      title: t('guide_step3_title' as any, lang),
+      description: t('guide_step3_desc' as any, lang),
       icon: AlertCircle,
       color: 'text-green-500 bg-green-50'
     },
     {
-      title: 'At the Polling Station',
-      description: 'First official will check your name. Second will mark your finger with ink and take your signature.',
+      title: t('guide_step4_title' as any, lang),
+      description: t('guide_step4_desc' as any, lang),
       icon: HelpCircle,
       color: 'text-purple-500 bg-purple-50'
     },
     {
-      title: 'Casting the Vote',
-      description: 'Press the blue button against the candidate of your choice on the EVM. A red lamp will glow and a beep will be heard.',
+      title: t('guide_step5_title' as any, lang),
+      description: t('guide_step5_desc' as any, lang),
       icon: CheckCircle2,
       color: 'text-red-500 bg-red-50'
     }
@@ -48,14 +50,14 @@ export function FirstTimeVoterGuide({ onBack }: GuideProps) {
         <button onClick={onBack} className="p-2 hover:bg-white rounded-xl transition-colors shadow-sm">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-xl font-bold">First Time Voter Guide</h1>
+        <h1 className="text-xl font-bold">{t('first_time_guide', lang)}</h1>
       </header>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-8">
         <div className="bg-primary/5 p-6 rounded-[2rem] border border-primary/10">
-          <h2 className="text-primary font-bold text-lg mb-2">Welcome to Democracy!</h2>
+          <h2 className="text-primary font-bold text-lg mb-2">{t('welcome_democracy', lang)}</h2>
           <p className="text-gray-600 text-sm leading-relaxed">
-            Casting your first vote is a significant milestone. This guide will help you navigate the process seamlessly.
+            {t('guide_intro', lang)}
           </p>
         </div>
 
@@ -82,10 +84,10 @@ export function FirstTimeVoterGuide({ onBack }: GuideProps) {
         <div className="bg-orange-50 p-6 rounded-[2rem] border border-orange-100 space-y-4">
           <h4 className="font-bold text-orange-900 flex items-center gap-2">
             <AlertCircle size={20} />
-            Important Tip
+            {t('important_tip', lang)}
           </h4>
           <p className="text-xs text-orange-800 leading-relaxed">
-            Mobile phones, cameras, or any electronic gadgets are strictly NOT allowed inside the polling booth. Leave them at home or with a trusted person.
+            {t('mobile_warning', lang)}
           </p>
         </div>
       </div>
