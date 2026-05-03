@@ -222,7 +222,7 @@ export function HomeScreen({ onNavigate, selectedLanguage }: HomeScreenProps) {
           lang={lang}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-4">
           {[
             { id: 'eligibility', label: t('eligibility', lang), icon: CheckCircle, color: 'bg-slate-50 text-slate-700', onClick: () => setShowEligibility(true) },
             { id: 'booth', label: t('booths', lang), icon: MapPin, color: 'bg-slate-50 text-slate-700', onClick: () => setShowBoothFinder(true) },

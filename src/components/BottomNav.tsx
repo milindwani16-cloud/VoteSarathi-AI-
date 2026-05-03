@@ -22,7 +22,7 @@ export function BottomNav({ activeTab, setActiveTab, selectedLanguageCode }: Bot
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-slate-200 px-6 pb-6 pt-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+    <nav className="fixed bottom-0 left-0 right-0 max-w-3xl mx-auto bg-white border-t border-slate-200 px-6 pb-6 pt-3 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
       <div className="flex justify-between items-center">
         {ITEMS.map((item) => {
           const isActive = activeTab === item.id;

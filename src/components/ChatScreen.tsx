@@ -159,19 +159,19 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
 
   return (
     <div className="flex-1 flex flex-col h-full bg-gray-50 overflow-hidden relative">
-      <header className="bg-white border-b border-gray-100 p-4 pt-10 flex items-center gap-4 z-10 shrink-0">
-        <button onClick={onBack} className="p-2 hover:bg-gray-50 rounded-xl transition-colors">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 p-4 md:p-6 pt-10 md:pt-12 flex items-center gap-4 z-10 shrink-0 sticky top-0">
+        <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-inner">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-inner">
               <Bot size={24} />
             </div>
             <div>
-              <h2 className="font-bold text-gray-900 leading-tight">VoteSaathi AI</h2>
+              <h2 className="font-bold text-gray-900 leading-tight md:text-lg">VoteSaathi AI</h2>
               <div 
-                className="flex items-center gap-1 cursor-pointer"
+                className="flex items-center gap-1 cursor-pointer hover:opacity-80"
                 onClick={() => isSpeaking && cancelSpeech()}
               >
                 {isSpeaking ? (
@@ -185,6 +185,7 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
                       />
                     ))}
                     <span className="text-[10px] text-primary font-bold uppercase tracking-widest ml-1">{t('speaking', selectedLanguage.code)}</span>
+                    <span className="text-[8px] text-gray-400 ml-2">(Click to stop)</span>
                   </div>
                 ) : voiceError ? (
                   <div className="flex items-center gap-1">
@@ -272,19 +273,19 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
         <div ref={messagesEndRef} className="h-4" />
       </div>
 
-      <div className="p-4 bg-white border-t border-gray-100 shrink-0 mb-20 space-y-3">
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-bold uppercase text-slate-400 tracking-widest mr-1">{t('tone', selectedLanguage.code)}:</span>
+      <div className="p-4 md:p-6 bg-white border-t border-gray-100 shrink-0 mb-24 md:mb-28 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-gray-50/50 p-2 rounded-2xl border border-gray-100">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            <span className="text-[9px] font-bold uppercase text-slate-400 tracking-widest mr-1 ml-2">{t('tone', selectedLanguage.code)}:</span>
             {(['friendly', 'professional', 'clear'] as VoiceTone[]).map((tone) => (
               <button
                 key={tone}
                 onClick={() => setSelectedTone(tone)}
                 className={cn(
-                  "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border",
+                  "px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all whitespace-nowrap",
                   selectedTone === tone 
-                    ? "bg-primary text-white border-primary shadow-sm" 
-                    : "bg-slate-50 text-slate-400 border-slate-100 hover:border-slate-200"
+                    ? "bg-primary text-white shadow-sm ring-2 ring-primary/10" 
+                    : "bg-white text-slate-500 border border-slate-200 hover:border-slate-300"
                 )}
               >
                 {tone}
@@ -292,28 +293,26 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
             ))}
           </div>
 
-          <div className="h-4 w-[1px] bg-slate-100 mx-1 hidden sm:block"></div>
-
           <button 
             onClick={() => setIsAutoVoiceEnabled(!isAutoVoiceEnabled)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all border",
+              "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border",
               isAutoVoiceEnabled 
-                ? "bg-indigo-50 text-indigo-600 border-indigo-100" 
-                : "bg-slate-50 text-slate-400 border-slate-100"
+                ? "bg-indigo-50 text-indigo-600 border-indigo-100 ring-2 ring-indigo-500/10" 
+                : "bg-white text-slate-400 border-slate-200"
             )}
           >
-            <Volume2 size={12} className={isAutoVoiceEnabled ? "text-indigo-500" : "text-slate-400"} />
+            <Volume2 size={13} className={isAutoVoiceEnabled ? "text-indigo-500" : "text-slate-400"} />
             {t('voice_out', selectedLanguage.code)}
           </button>
         </div>
 
-        <div className="bg-gray-50 rounded-[2rem] p-2 flex items-center gap-2 border-2 border-transparent focus-within:border-primary/20 transition-all">
+        <div className="bg-gray-100 rounded-3xl p-1.5 flex items-center gap-1 border-2 border-transparent focus-within:border-primary/20 focus-within:bg-white transition-all shadow-sm">
           <button 
             onClick={isListening ? stopListening : startListening}
             className={cn(
-              "p-3 rounded-full transition-all",
-              isListening ? "bg-red-500 text-white animate-pulse" : "text-gray-400 hover:text-primary"
+              "p-3 rounded-2xl transition-all",
+              isListening ? "bg-red-500 text-white animate-pulse" : "text-gray-500 hover:text-primary hover:bg-white"
             )}
             disabled={!isSupported}
           >
@@ -324,14 +323,14 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t('type_question', selectedLanguage.code)}
-            className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-sm placeholder:text-gray-400"
+            className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-sm md:text-base placeholder:text-gray-400"
           />
           <button 
             onClick={() => handleSend()}
             disabled={!input.trim() || isLoading}
             className={cn(
-              "p-3 rounded-full transition-all",
-              input.trim() ? "bg-primary text-white scale-100" : "bg-gray-200 text-gray-400 scale-90"
+              "p-3 rounded-2xl transition-all",
+              input.trim() ? "bg-primary text-white shadow-lg shadow-primary/25 scale-105" : "bg-gray-200 text-gray-400 scale-90"
             )}
           >
             <Send size={20} />

@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({
 export async function chatWithAI(message: string, history: any[], language: string) {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [
         ...history,
         { role: 'user', parts: [{ text: message }] }
@@ -31,7 +31,7 @@ export async function chatWithAI(message: string, history: any[], language: stri
 export async function* chatWithAIStream(message: string, history: any[], language: string) {
   try {
     const stream = await ai.models.generateContentStream({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [
         ...history,
         { role: 'user', parts: [{ text: message }] }
@@ -65,7 +65,7 @@ export async function verifyNews(content: string, language: string, imageBase64?
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-2.5-flash",
       contents: [{ role: 'user', parts }],
       config: {
         responseMimeType: "application/json",
@@ -103,7 +103,7 @@ export async function verifyNews(content: string, language: string, imageBase64?
 export async function generateSpeech(text: string, tone: string = 'professional', languageCode: string = 'en') {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts-preview",
+      model: "gemini-2.5-flash-preview-tts",
       contents: [{ parts: [{ text: `Generate spoken audio for this text in ${languageCode}: ${text}` }] }],
       config: {
         responseModalities: [Modality.AUDIO],
@@ -112,7 +112,8 @@ export async function generateSpeech(text: string, tone: string = 'professional'
 
     const part = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
     if (part?.inlineData?.data) {
-      return part.inlineData.data;
+      const mimeType = part.inlineData.mimeType || 'audio/mpeg';
+      return `data:${mimeType};base64,${part.inlineData.data}`;
     }
     return null;
   } catch (error) {

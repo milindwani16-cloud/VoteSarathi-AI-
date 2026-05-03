@@ -24,14 +24,26 @@ async function startServer() {
   app.get('/api/news', async (req, res) => {
     console.log('GET /api/news hit', req.query);
     const { query = 'India Elections', lang = 'en' } = req.query;
-    const apiKey = process.env.NEWS_API_KEY;
+    let apiKey = process.env.NEWS_API_KEY?.trim();
+    if (apiKey?.startsWith('"') && apiKey?.endsWith('"')) {
+      apiKey = apiKey.substring(1, apiKey.length - 1);
+    }
+    if (apiKey?.startsWith("'") && apiKey?.endsWith("'")) {
+      apiKey = apiKey.substring(1, apiKey.length - 1);
+    }
 
-    if (!apiKey || 
-        apiKey === 'YOUR_GNEWS_API_KEY' || 
-        apiKey.trim() === '' || 
-        apiKey === 'undefined' || 
-        apiKey === 'null' || 
-        apiKey === 'none') {
+    const isInvalidKey = !apiKey || 
+                         apiKey === 'YOUR_GNEWS_API_KEY' || 
+                         apiKey === '' || 
+                         apiKey === 'undefined' || 
+                         apiKey === 'null' || 
+                         apiKey === 'none';
+
+    // GNews supported languages mapping
+    const gnewsSupported = ['ar', 'zh', 'nl', 'en', 'fr', 'de', 'el', 'he', 'hi', 'it', 'ja', 'ml', 'mr', 'pt', 'ro', 'ru', 'es', 'ta', 'te', 'uk'];
+    const gnewsLang = gnewsSupported.includes(lang as string) ? lang : 'en';
+
+    if (isInvalidKey) {
       console.log('Using fallback news data (API key missing or invalid)');
       return res.json({
         articles: [
@@ -59,55 +71,54 @@ async function startServer() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-      const response = await fetch(
-        `https://gnews.io/api/v4/search?q=${encodeURIComponent(query as string)}&lang=${lang}&apikey=${apiKey}&max=5`,
-        { signal: controller.signal }
-      );
+      const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query as string)}&lang=${gnewsLang}&token=${apiKey}&max=5`;
+      console.log('Fetching GNews:', url.replace(apiKey as string, 'REDACTED'));
+
+      const response = await fetch(url, { signal: controller.signal });
       
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        
-        // If it's a 400 or 401 (Auth error), return fallback data instead of error
-        // Use console.log instead of error to avoid alarming logs for missing keys
-        if (response.status === 400 || response.status === 401) {
-          console.log('Returning fallback news data (API key missing or invalid)');
-          return res.json({
-            articles: [
-              {
-                title: "Upcoming General Elections: What you need to know",
-                description: "A comprehensive guide to the upcoming voting cycle across India.",
-                url: "https://eci.gov.in",
-                image: "https://images.unsplash.com/photo-1540910419892-f0c97353ad62",
-                publishedAt: new Date().toISOString(),
-                source: { name: "Election Commission" }
-              },
-              {
-                title: "Digital Voter ID: How to download and use",
-                description: "The ECI is rolling out new features for the e-EPIC system.",
-                url: "https://voters.eci.gov.in",
-                image: "https://images.unsplash.com/photo-1533421680516-fca7e39a4d0d",
-                publishedAt: new Date().toISOString(),
-                source: { name: "Digital India" }
-              }
-            ]
-          });
-        }
-        
-        console.error('GNews API unexpected error:', response.status, errorText);
-        return res.status(response.status).json({ error: 'News API returned an error', detail: errorText });
+        const errorData = await response.json().catch(() => ({}));
+        console.warn('GNews API error:', response.status, JSON.stringify(errorData));
+        return res.json({
+          articles: [
+            {
+              title: "Upcoming General Elections: What you need to know",
+              description: "A comprehensive guide to the upcoming voting cycle across India.",
+              url: "https://eci.gov.in",
+              image: "https://images.unsplash.com/photo-1540910419892-f0c97353ad62",
+              publishedAt: new Date().toISOString(),
+              source: { name: "Election Commission" }
+            },
+            {
+              title: "Digital Voter ID: How to download and use",
+              description: "The ECI is rolling out new features for the e-EPIC system.",
+              url: "https://voters.eci.gov.in",
+              image: "https://images.unsplash.com/photo-1533421680516-fca7e39a4d0d",
+              publishedAt: new Date().toISOString(),
+              source: { name: "Digital India" }
+            }
+          ]
+        });
       }
 
       const data = await response.json();
       res.json(data);
     } catch (error: any) {
-      console.error('News API execution error:', error);
-      if (error.name === 'AbortError') {
-        res.status(504).json({ error: 'News API timeout' });
-      } else {
-        res.status(500).json({ error: 'Failed to fetch news', detail: error.message });
-      }
+      console.error('News API execution error, returning fallback:', error.message);
+      return res.json({
+        articles: [
+          {
+            title: "Election Preparedness Guide",
+            description: "Essential information for all first-time and regular voters.",
+            url: "https://voters.eci.gov.in",
+            image: "https://images.unsplash.com/photo-1540910419892-f0c97353ad62",
+            publishedAt: new Date().toISOString(),
+            source: { name: "ECI Support" }
+          }
+        ]
+      });
     }
   });
 

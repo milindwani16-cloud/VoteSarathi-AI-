@@ -255,10 +255,9 @@ export function useVoiceAssistant(language: string = 'en') {
     
     try {
       setIsSpeaking(true);
-      const base64Audio = await generateSpeech(text, tone, lang);
+      const audioUrl = await generateSpeech(text, tone, lang);
       
-      if (base64Audio) {
-        const audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+      if (audioUrl) {
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
         
