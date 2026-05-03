@@ -4,24 +4,10 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { GoogleGenAI, Type, Modality } from "@google/genai";
 
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Initialize Gemini
-let aiClient: GoogleGenAI | null = null;
-function getAI() {
-  if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error("GEMINI_API_KEY is missing in environment variables.");
-    }
-    aiClient = apiKey ? new GoogleGenAI({ apiKey }) : null;
-  }
-  return aiClient;
-}
 
 async function startServer() {
   const app = express();
@@ -31,110 +17,6 @@ async function startServer() {
   
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  });
-
-  // Proxy for Gemini Chat
-  app.post('/api/chat', async (req, res) => {
-    const { message, history, language } = req.body;
-    const ai = getAI();
-    if (!ai) return res.status(500).json({ error: "Gemini API key not configured" });
-
-    try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...history,
-          { role: 'user', parts: [{ text: message }] }
-        ],
-        config: {
-          tools: [{ googleSearch: {} }],
-          systemInstruction: `You are VoteSaathi AI, a multi-language Indian Election Assistant. Respond in ${language} language. 
-          Keep it conversational and friendly. Use simple sentences for easy voice output.`,
-        }
-      });
-      res.json({ text: response.text });
-    } catch (error: any) {
-      console.error("Gemini Chat Error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Proxy for Gemini Stream
-  app.post('/api/chat-stream', async (req, res) => {
-    const { message, history, language } = req.body;
-    const ai = getAI();
-    if (!ai) return res.status(500).json({ error: "Gemini API key not configured" });
-
-    try {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
-      const stream = await ai.models.generateContentStream({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...history,
-          { role: 'user', parts: [{ text: message }] }
-        ],
-        config: {
-          tools: [{ googleSearch: {} }],
-          systemInstruction: `You are VoteSaathi AI. Respond in ${language} language.`,
-        }
-      });
-
-      for await (const chunk of stream) {
-        if (chunk.text) {
-          res.write(`data: ${JSON.stringify({ text: chunk.text })}\n\n`);
-        }
-      }
-      res.write('data: [DONE]\n\n');
-      res.end();
-    } catch (error: any) {
-      console.error("Gemini Stream Error:", error);
-      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
-      res.end();
-    }
-  });
-
-  app.post('/api/verify-news', async (req, res) => {
-    const { content, imageBase64 } = req.body;
-    const ai = getAI();
-    if (!ai) return res.status(500).json({ error: "Gemini API key not configured" });
-
-    try {
-      const contents: any[] = [`Analyze this for truthfulness: "${content || 'provided image'}"`];
-      if (imageBase64) {
-        contents.push({
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: imageBase64.split(',')[1]
-          }
-        });
-      }
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: contents.map(c => typeof c === 'string' ? { role: 'user', parts: [{ text: c }] } : { role: 'user', parts: [c] }),
-        config: {
-          tools: [{ googleSearch: {} }],
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              verdict: { type: Type.STRING, enum: ["True", "Fake", "Misleading"] },
-              explanation: { type: Type.STRING },
-              confidence: { type: Type.NUMBER },
-              sources: { type: Type.ARRAY, items: { type: Type.STRING } }
-            },
-            required: ["verdict", "explanation", "confidence", "sources"]
-          }
-        }
-      });
-      res.json(JSON.parse(response.text || "{}"));
-    } catch (error: any) {
-      console.error("News Verify Error:", error);
-      res.status(500).json({ error: error.message });
-    }
   });
 
   app.get('/api/news', async (req, res) => {

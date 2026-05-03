@@ -1,15 +1,25 @@
 
 import { NewsAnalysis } from "../types";
+import { GoogleGenAI, Type } from "@google/genai";
+
+// Initialize Gemini directly in the service
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function chatWithAI(message: string, history: any[], language: string) {
   try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, history, language })
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        ...history,
+        { role: 'user', parts: [{ text: message }] }
+      ],
+      config: {
+        tools: [{ googleSearch: {} }],
+        systemInstruction: `You are VoteSaathi AI, a multi-language Indian Election Assistant. Respond in ${language} language. 
+        Keep it conversational and friendly. Use simple sentences for easy voice output.`,
+      }
     });
-    const data = await response.json();
-    return data.text || "I'm sorry, I couldn't process that.";
+    return response.text || "I'm sorry, I couldn't process that.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Something went wrong. Please check your connectivity.";
@@ -18,51 +28,61 @@ export async function chatWithAI(message: string, history: any[], language: stri
 
 export async function* chatWithAIStream(message: string, history: any[], language: string) {
   try {
-    const response = await fetch('/api/chat-stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, history, language })
+    const stream = await ai.models.generateContentStream({
+      model: "gemini-3-flash-preview",
+      contents: [
+        ...history,
+        { role: 'user', parts: [{ text: message }] }
+      ],
+      config: {
+        tools: [{ googleSearch: {} }],
+        systemInstruction: `You are VoteSaathi AI. Respond in ${language} language.`,
+      }
     });
 
-    if (!response.body) throw new Error("No response body");
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
-      
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const content = line.substring(6);
-          if (content === '[DONE]') return;
-          try {
-            const parsed = JSON.parse(content);
-            if (parsed.text) yield parsed.text;
-            if (parsed.error) yield `Error: ${parsed.error}`;
-          } catch (e) {
-            console.error("Error parsing stream chunk:", e);
-          }
-        }
+    for await (const chunk of stream) {
+      if (chunk.text) {
+        yield chunk.text;
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini Stream Error:", error);
-    yield "Something went wrong while generating the response.";
+    yield `Something went wrong: ${error.message}`;
   }
 }
 
 export async function verifyNews(content: string, language: string, imageBase64?: string): Promise<NewsAnalysis> {
   try {
-    const response = await fetch('/api/verify-news', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, imageBase64, language })
+    const parts: any[] = [{ text: `Analyze this news for truthfulness in ${language}: "${content || 'provided image'}"` }];
+    if (imageBase64) {
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: imageBase64.split(',')[1]
+        }
+      });
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [{ role: 'user', parts }],
+      config: {
+        tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            verdict: { type: Type.STRING, enum: ["True", "Fake", "Misleading"] },
+            explanation: { type: Type.STRING },
+            confidence: { type: Type.NUMBER },
+            sources: { type: Type.ARRAY, items: { type: Type.STRING } }
+          },
+          required: ["verdict", "explanation", "confidence", "sources"]
+        }
+      }
     });
-    const data = await response.json();
+    
+    const data = JSON.parse(response.text || "{}");
     return {
       verdict: data.verdict || "Misleading",
       explanation: data.explanation || "No explanation provided.",
@@ -79,7 +99,8 @@ export async function verifyNews(content: string, language: string, imageBase64?
     };
   }
 }
-export async function generateSpeech(text: string, tone: string = 'professional', languageCode: string = 'en-IN') {
+
+export async function generateSpeech(text: string, tone: string = 'professional', languageCode: string = 'en') {
   try {
     const response = await fetch('/api/tts', {
       method: 'POST',

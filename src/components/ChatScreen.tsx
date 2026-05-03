@@ -103,10 +103,12 @@ export function ChatScreen({ onBack, selectedLanguage, initialInput }: ChatScree
         await persistenceService.saveMessage(currentChatId, userMessage);
       }
 
-      const history: { role: 'user' | 'model', parts: [{ text: string }] }[] = messages.map(m => ({
-        role: (m.role === 'assistant' ? 'model' : 'user') as 'user' | 'model',
-        parts: [{ text: m.content }]
-      }));
+      const history: { role: 'user' | 'model', parts: [{ text: string }] }[] = messages
+        .filter(m => m.id !== 'welcome')
+        .map(m => ({
+          role: (m.role === 'assistant' ? 'model' : 'user') as 'user' | 'model',
+          parts: [{ text: m.content }]
+        }));
 
       // Create initial empty bot message for streaming
       const botMessageId = (Date.now() + 1).toString();
