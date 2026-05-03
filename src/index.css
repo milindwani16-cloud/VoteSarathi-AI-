@@ -20,7 +20,7 @@
 }
 
 .mobile-container {
-  @apply max-w-md mx-auto min-h-screen bg-slate-50 shadow-2xl relative flex flex-col overflow-x-hidden border-x border-border-slate;
+  @apply w-full max-w-2xl mx-auto min-h-screen bg-slate-50 shadow-2xl relative flex flex-col overflow-x-hidden md:border-x border-border-slate;
 }
 
 .glass-card {

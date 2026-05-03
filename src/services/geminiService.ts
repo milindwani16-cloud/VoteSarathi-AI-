@@ -1,9 +1,12 @@
 
+import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { NewsAnalysis } from "../types";
-import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize Gemini directly in the service
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+// Initialize Gemini client directly on the frontend
+// The platform handles the injection of the GEMINI_API_KEY
+const ai = new GoogleGenAI({ 
+  apiKey: process.env.GEMINI_API_KEY || '' 
+});
 
 export async function chatWithAI(message: string, history: any[], language: string) {
   try {
@@ -14,7 +17,6 @@ export async function chatWithAI(message: string, history: any[], language: stri
         { role: 'user', parts: [{ text: message }] }
       ],
       config: {
-        tools: [{ googleSearch: {} }],
         systemInstruction: `You are VoteSaathi AI, a multi-language Indian Election Assistant. Respond in ${language} language. 
         Keep it conversational and friendly. Use simple sentences for easy voice output.`,
       }
@@ -35,7 +37,6 @@ export async function* chatWithAIStream(message: string, history: any[], languag
         { role: 'user', parts: [{ text: message }] }
       ],
       config: {
-        tools: [{ googleSearch: {} }],
         systemInstruction: `You are VoteSaathi AI. Respond in ${language} language.`,
       }
     });
@@ -67,7 +68,6 @@ export async function verifyNews(content: string, language: string, imageBase64?
       model: "gemini-3-flash-preview",
       contents: [{ role: 'user', parts }],
       config: {
-        tools: [{ googleSearch: {} }],
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
@@ -102,15 +102,21 @@ export async function verifyNews(content: string, language: string, imageBase64?
 
 export async function generateSpeech(text: string, tone: string = 'professional', languageCode: string = 'en') {
   try {
-    const response = await fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, tone, languageCode })
+    const response = await ai.models.generateContent({
+      model: "gemini-3.1-flash-tts-preview",
+      contents: [{ parts: [{ text: `Generate spoken audio for this text in ${languageCode}: ${text}` }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+      },
     });
-    const data = await response.json();
-    return data.audioContent || null;
+
+    const part = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+    if (part?.inlineData?.data) {
+      return part.inlineData.data;
+    }
+    return null;
   } catch (error) {
-    console.error("TTS Error:", error);
+    console.error("Gemini TTS Error:", error);
     return null;
   }
 }

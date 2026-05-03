@@ -14,11 +14,13 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
-  
+
+  // Health Check
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
+  // News API Proxy
   app.get('/api/news', async (req, res) => {
     console.log('GET /api/news hit', req.query);
     const { query = 'India Elections', lang = 'en' } = req.query;
@@ -109,71 +111,11 @@ async function startServer() {
     }
   });
 
-  app.post('/api/tts', async (req, res) => {
-    const { text, languageCode = 'en', tone = 'professional' } = req.body;
-    const apiKey = process.env.GOOGLE_API_KEY;
-
-    if (!apiKey || apiKey === 'YOUR_GOOGLE_API_KEY') {
-      // In demo mode or if key is missing, return a dummy but successful response to keep UI smooth
-      return res.json({ audioContent: "" });
-    }
-
-    // Map simple lang code to Google TTS languageCode
-    const langMap: Record<string, string> = {
-      'en': 'en-IN',
-      'hi': 'hi-IN',
-      'mr': 'mr-IN',
-      'bn': 'bn-IN',
-      'ta': 'ta-IN',
-      'te': 'te-IN',
-      'kn': 'kn-IN',
-      'ml': 'ml-IN',
-      'gu': 'gu-IN',
-      'pa': 'pa-IN',
-      'ur': 'ur-IN'
-    };
-
-    const targetLang = langMap[languageCode] || 'en-IN';
-
-    try {
-      const response = await fetch(
-        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            input: { text },
-            voice: { 
-              languageCode: targetLang,
-              ssmlGender: tone === 'friendly' ? 'FEMALE' : 'MALE'
-            },
-            audioConfig: { 
-              audioEncoding: 'MP3',
-              speakingRate: tone === 'clear' ? 0.9 : 1.0,
-              pitch: 0.0
-            },
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (data.audioContent) {
-        res.json({ audioContent: data.audioContent });
-      } else {
-        console.error('TTS API error detail:', JSON.stringify(data, null, 2));
-        res.status(500).json({ error: 'Failed to synthesize speech', details: data });
-      }
-    } catch (error) {
-      console.error('TTS execution error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
   app.get('/api/booths', async (req, res) => {
     const { location } = req.query;
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_API_KEY?.trim();
 
-    if (!apiKey || apiKey === 'YOUR_GOOGLE_API_KEY') {
+    if (!apiKey || apiKey === 'YOUR_GOOGLE_API_KEY' || apiKey.length < 5) {
       // Return realistic fallback data for demo purposes if API key is missing
       return res.json({
         results: [
